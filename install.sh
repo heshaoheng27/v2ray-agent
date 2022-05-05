@@ -372,9 +372,11 @@ readConfigHostPathUUID() {
 			currentPath=$(echo "${path}" | awk -F "[v][w][s]" '{print $1}')
 		fi
 		# 尝试读取alpn h2 Path
+
 		if [[ -z "${currentPath}" ]]; then
 			dest=$(jq -r -c '.inbounds[0].settings.fallbacks[]|select(.alpn)|.dest' ${configPath}${frontingType}.json | head -1)
-			if [[ "${dest}" == "31302" ]]; then
+			if [[ "${dest}" == "31302" || "${dest}" == "31304" ]]; then
+
 				if grep -q "trojangrpc {" <${nginxConfigPath}alone.conf; then
 					currentPath=$(grep "trojangrpc {" <${nginxConfigPath}alone.conf | awk -F "[/]" '{print $2}' | awk -F "[t][r][o][j][a][n]" '{print $1}')
 				elif grep -q "grpc {" <${nginxConfigPath}alone.conf; then
@@ -382,6 +384,7 @@ readConfigHostPathUUID() {
 				fi
 			fi
 		fi
+
 
 		local defaultPortFile=
 		defaultPortFile=$(find ${configPath}* | grep "default")
